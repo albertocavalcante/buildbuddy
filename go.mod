@@ -9,6 +9,7 @@ replace (
 	github.com/go-redsync/redsync/v4 v4.4.1 => github.com/bduffany/redsync/v4 v4.4.1-minimal
 	github.com/lni/dragonboat/v3 => github.com/tylerwilliams/dragonboat/v3 v3.3.4-rc5
 	github.com/throttled/throttled/v2 => github.com/buildbuddy-io/throttled/v2 v2.9.1-rc2
+	github.com/tink-crypto/tink-go-awskms/v2 => github.com/tempoz/tink-go-awskms/v2 v2.0.1
 )
 
 require (
@@ -22,16 +23,16 @@ require (
 	github.com/GoogleCloudPlatform/cloudsql-proxy v1.33.8
 	github.com/Merovius/nbd v0.0.0-20230605051639-7ffd87295813
 	github.com/armon/circbuf v0.0.0-20190214190532-5111143e8da2
-	github.com/aws/aws-sdk-go v1.44.286
-	github.com/aws/aws-sdk-go-v2 v1.18.1
-	github.com/aws/aws-sdk-go-v2/config v1.18.27
-	github.com/aws/aws-sdk-go-v2/credentials v1.13.26
+	github.com/aws/aws-sdk-go-v2 v1.19.0
+	github.com/aws/aws-sdk-go-v2/config v1.18.28
+	github.com/aws/aws-sdk-go-v2/credentials v1.13.27
 	github.com/aws/aws-sdk-go-v2/feature/rds/auth v1.2.12
-	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.11.70
-	github.com/aws/aws-sdk-go-v2/service/s3 v1.35.0
-	github.com/aws/aws-sdk-go-v2/service/sts v1.19.2
+	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.11.71
+	github.com/aws/aws-sdk-go-v2/service/kms v1.23.1
+	github.com/aws/aws-sdk-go-v2/service/s3 v1.36.0
+	github.com/aws/aws-sdk-go-v2/service/sts v1.19.3
 	github.com/aws/smithy-go v1.13.5
-	github.com/awslabs/soci-snapshotter v0.1.0
+	github.com/awslabs/soci-snapshotter v0.3.0
 	github.com/bazelbuild/bazel-gazelle v0.31.1
 	github.com/bazelbuild/bazelisk v1.17.0
 	github.com/bazelbuild/buildtools v0.0.0-20230510134650-37bd1811516d
@@ -66,7 +67,6 @@ require (
 	github.com/google/go-containerregistry v0.15.2
 	github.com/google/go-github/v43 v43.0.0
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510
-	github.com/google/tink/go v1.7.0
 	github.com/google/uuid v1.3.0
 	github.com/groob/plist v0.0.0-20220217120414-63fa881b19a5
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
@@ -102,6 +102,9 @@ require (
 	github.com/stretchr/testify v1.8.4
 	github.com/tebeka/selenium v0.9.9
 	github.com/throttled/throttled/v2 v2.12.0
+	github.com/tink-crypto/tink-go-awskms/v2 v2.0.0
+	github.com/tink-crypto/tink-go-gcpkms/v2 v2.0.0
+	github.com/tink-crypto/tink-go/v2 v2.0.0
 	github.com/vishvananda/netlink v1.2.1-beta.2
 	github.com/zeebo/blake3 v0.2.3
 	go.opentelemetry.io/contrib/detectors/gcp v1.17.0
@@ -157,17 +160,17 @@ require (
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.10 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.4 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.34 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.28 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.35 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.13.5 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.35 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.29 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.36 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/v4a v1.0.26 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.11 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.1.29 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.28 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.29 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/s3shared v1.14.3 // indirect
-	github.com/aws/aws-sdk-go-v2/service/sso v1.12.12 // indirect
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.12 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.12.13 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.13 // indirect
 	github.com/beevik/etree v1.2.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
@@ -227,7 +230,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
-	github.com/google/flatbuffers v23.5.9+incompatible // indirect
+	github.com/google/flatbuffers v23.5.26+incompatible // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/pprof v0.0.0-20230602150820-91b7bce49751 // indirect
 	github.com/google/s2a-go v0.1.4 // indirect
@@ -321,5 +324,5 @@ require (
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	oras.land/oras-go/v2 v2.1.0 // indirect
+	oras.land/oras-go/v2 v2.2.0 // indirect
 )

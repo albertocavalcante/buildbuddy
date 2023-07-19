@@ -148,7 +148,7 @@ func (s *SecretService) UpdateSecret(ctx context.Context, req *skpb.UpdateSecret
 
 	// Before writing the secret to the database, verify that we can open
 	// the secret box using this group's public key.
-	_, err = keystore.OpenAnonymousSealedBox(s.env, grp.PublicKey, grp.EncryptedPrivateKey, req.GetSecret().GetValue())
+	_, err = keystore.OpenAnonymousSealedBox(ctx, s.env, grp.PublicKey, grp.EncryptedPrivateKey, req.GetSecret().GetValue())
 	if err != nil {
 		return nil, err
 	}
@@ -215,7 +215,7 @@ func (s *SecretService) GetSecretEnvVars(ctx context.Context, groupID string) ([
 		encValues = append(encValues, nameAndEncValue.GetValue())
 	}
 
-	values, err := keystore.OpenAnonymousSealedBoxes(s.env, grp.PublicKey, grp.EncryptedPrivateKey, encValues)
+	values, err := keystore.OpenAnonymousSealedBoxes(ctx, s.env, grp.PublicKey, grp.EncryptedPrivateKey, encValues)
 	if err != nil {
 		return nil, err
 	}
