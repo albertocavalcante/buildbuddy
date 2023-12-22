@@ -9,18 +9,18 @@ go_test(
     name = "podman_test",
     size = "large",
     srcs = ["podman_test.go"],
-    exec_properties = {
-        "test.Pool": "bare",
-        "test.use-self-hosted-executors": "true",
-        "test.container-image": "none",
-    },
+    # exec_properties = {
+    #     "test.Pool": "bare",
+    #     "test.use-self-hosted-executors": "true",
+    #     "test.container-image": "none",
+    # },
     # Podman tests must run on the bare executors because podman-on-podman /
     # podman-on-firecracker don't work due to issues running overlayfs on
     # overlayfs.
     # TODO(go/b/2944): move to firecracker once
     # firecracker.enable_merged_rootfs works.
     tags = [
-        "bare",
+        # "bare",
         # TODO(go/b/2945): remove manual tag.
         "manual",
     ],
@@ -40,5 +40,6 @@ go_test(
         "//server/util/testing/flags",
         "@com_github_stretchr_testify//assert",
         "@com_github_stretchr_testify//require",
+        "@org_golang_x_sync//errgroup",
     ],
 )

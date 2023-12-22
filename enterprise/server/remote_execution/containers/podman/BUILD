@@ -32,6 +32,7 @@ go_library(
         "//server/util/retry",
         "//server/util/status",
         "//server/util/tracing",
+        "//server/util/uuid",
         "@com_github_masterminds_semver_v3//:semver",
         "@com_github_prometheus_client_golang//prometheus",
     ],

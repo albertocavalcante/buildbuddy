@@ -23,6 +23,7 @@ import (
 	"github.com/buildbuddy-io/buildbuddy/server/util/testing/flags"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/sync/errgroup"
 
 	_ "github.com/buildbuddy-io/buildbuddy/enterprise/server/remote_execution/containers/docker"
 	repb "github.com/buildbuddy-io/buildbuddy/proto/remote_execution"
@@ -275,6 +276,31 @@ func TestExec_Timeout(t *testing.T) {
 	assert.Equal(
 		t, "output\n", output,
 		"if timed out, should be able to read debug output files")
+}
+
+func TestPullImageABunchOfTimes(t *testing.T) {
+	rootDir := testfs.MakeTempDir(t)
+	testfs.MakeDirAll(t, rootDir, "work")
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Minute)
+	defer cancel()
+	env := testenv.GetTestEnv(t)
+	env.SetAuthenticator(testauth.NewTestAuthenticator(testauth.TestUsers("US1", "GR1")))
+
+	provider, err := podman.NewProvider(env, rootDir)
+	require.NoError(t, err)
+	props := platform.Properties{
+		ContainerImage: "docker.io/library/busybox",
+		DockerNetwork:  "off",
+	}
+	container, err := provider.New(ctx, &props, nil, nil, "")
+	require.NoError(t, err)
+
+	eg, ctx := errgroup.WithContext(ctx)
+	for i := 0; i < 10; i++ {
+		eg.Go(func() error { return container.PullImage(ctx, oci.Credentials{}) })
+	}
+	require.NoError(t, eg.Wait())
 }
 
 func TestIsImageCached(t *testing.T) {

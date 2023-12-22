@@ -39,6 +39,7 @@ import (
 	"github.com/buildbuddy-io/buildbuddy/server/util/retry"
 	"github.com/buildbuddy-io/buildbuddy/server/util/status"
 	"github.com/buildbuddy-io/buildbuddy/server/util/tracing"
+	"github.com/buildbuddy-io/buildbuddy/server/util/uuid"
 	"github.com/prometheus/client_golang/prometheus"
 
 	repb "github.com/buildbuddy-io/buildbuddy/proto/remote_execution"
@@ -501,6 +502,8 @@ func (c *podmanCommandContainer) IsImageCached(ctx context.Context) (bool, error
 }
 
 func (c *podmanCommandContainer) PullImage(ctx context.Context, creds oci.Credentials) error {
+	u := uuid.New()
+	fmt.Println("=== " + u + " - PullImage() ===")
 	psi, _ := pullOperations.LoadOrStore(c.image, &pullStatus{&sync.RWMutex{}, false})
 	ps, ok := psi.(*pullStatus)
 	if !ok {
@@ -508,21 +511,34 @@ func (c *podmanCommandContainer) PullImage(ctx context.Context, creds oci.Creden
 		return status.InternalError("PullImage failed: cannot get pull status")
 	}
 
+	fmt.Println("=== " + u + " - requesting rlock ===")
 	ps.mu.RLock()
+	fmt.Println("=== " + u + " - rlock acquired ===")
 	alreadyPulled := ps.pulled
-	ps.mu.RUnlock()
-
 	if alreadyPulled {
+		fmt.Println("=== " + u + " - alreadypulled ===")
+	} else {
+		fmt.Println("=== " + u + " - not alreadypulled ===")
+	}
+	fmt.Println("=== " + u + " - runlock ===")
+
+	ps.mu.RUnlock()
+	time.Sleep(100 * time.Millisecond)
+	if alreadyPulled {
+		fmt.Println("=== " + u + " - pulling image (unlocked) ===")
 		return c.pullImage(ctx, creds)
 	}
 
+	fmt.Println("=== " + u + " - requesting wlock ===")
 	ps.mu.Lock()
+	fmt.Println("=== " + u + " - wlocked ===")
 	defer ps.mu.Unlock()
 	if c.imageIsStreamable {
 		c.sociStore.GetArtifacts(ctx, c.env, c.image, creds)
 	}
 
 	startTime := time.Now()
+	fmt.Println("=== " + u + " - pulling image (locked) ===")
 	if err := c.pullImage(ctx, creds); err != nil {
 		return err
 	}
@@ -532,6 +548,7 @@ func (c *podmanCommandContainer) PullImage(ctx context.Context, creds oci.Creden
 		With(prometheus.Labels{metrics.ContainerImageTag: c.image}).
 		Observe(float64(pullLatency.Milliseconds()))
 	ps.pulled = true
+	fmt.Println("=== " + u + " - wunlocking ===")
 	return nil
 }
 
@@ -625,6 +642,7 @@ func (c *podmanCommandContainer) getCID(ctx context.Context) (string, error) {
 }
 
 func (c *podmanCommandContainer) pullImage(ctx context.Context, creds oci.Credentials) error {
+	time.Sleep(1 * time.Second)
 	podmanArgs := make([]string, 0, 2)
 
 	if c.imageIsStreamable {
@@ -756,6 +774,7 @@ func runPodman(ctx context.Context, subCommand string, stdio *commandutil.Stdio,
 	command = append(command, args...)
 	// Note: we don't collect stats on the podman process, and instead use
 	// cgroups for stats accounting.
+	fmt.Println("RUNNING " + strings.Join(command, " "))
 	result := commandutil.Run(ctx, &repb.Command{Arguments: command}, "" /*=workDir*/, nil /*=statsListener*/, stdio)
 	return result
 }

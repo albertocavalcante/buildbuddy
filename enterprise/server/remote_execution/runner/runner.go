@@ -813,11 +813,13 @@ func (p *pool) Warmup(ctx context.Context) {
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 
-	eg, ctx := errgroup.WithContext(ctx)
+	eg, _ := errgroup.WithContext(ctx)
 	for _, cfg := range p.warmupConfigs() {
 		cfg := cfg
 		eg.Go(func() error {
-			return p.warmupImage(ctx, &cfg)
+			fmt.Println(cfg)
+			return nil
+			//return p.warmupImage(ctx, &cfg)
 		})
 	}
 	if err := eg.Wait(); err != nil {
