@@ -239,9 +239,7 @@ func (d *AuthDB) InsertOrUpdateUserSession(ctx context.Context, sessionID string
 		}
 		return err
 	}
-	return d.h.Transaction(ctx, func(tx interfaces.DB) error {
-		return tx.NewQuery(ctx, "authdb_update_session").Update(session)
-	})
+	return d.h.NewQuery(ctx, "authdb_update_session").Update(session)
 }
 
 func (d *AuthDB) ReadSession(ctx context.Context, sessionID string) (*tables.Session, error) {
@@ -255,11 +253,8 @@ func (d *AuthDB) ReadSession(ctx context.Context, sessionID string) (*tables.Ses
 }
 
 func (d *AuthDB) ClearSession(ctx context.Context, sessionID string) error {
-	err := d.h.Transaction(ctx, func(tx interfaces.DB) error {
-		return tx.NewQuery(ctx, "authdb_delete_session").Raw(
-			`DELETE FROM "Sessions" WHERE session_id = ?`, sessionID).Exec().Error
-	})
-	return err
+	return d.h.NewQuery(ctx, "authdb_delete_session").Raw(
+		`DELETE FROM "Sessions" WHERE session_id = ?`, sessionID).Exec().Error
 }
 
 // encryptAPIkey encrypts apiKey using chacha20 using the following process:
@@ -878,21 +873,19 @@ func (d *AuthDB) UpdateAPIKey(ctx context.Context, key *tables.APIKey) error {
 	if err := d.authorizeNewAPIKeyCapabilities(ctx, existingKey.UserID, existingKey.GroupID, capabilities.FromInt(key.Capabilities)); err != nil {
 		return err
 	}
-	return d.h.Transaction(ctx, func(tx interfaces.DB) error {
-		return tx.NewQuery(ctx, "authdb_update_api_key").Raw(`
-			UPDATE "APIKeys"
-			SET
-				label = ?,
-				capabilities = ?,
-				visible_to_developers = ?
-			WHERE
-				api_key_id = ?`,
-			key.Label,
-			key.Capabilities,
-			key.VisibleToDevelopers,
-			key.APIKeyID,
-		).Exec().Error
-	})
+	return d.h.NewQuery(ctx, "authdb_update_api_key").Raw(`
+		UPDATE "APIKeys"
+		SET
+			label = ?,
+			capabilities = ?,
+			visible_to_developers = ?
+		WHERE
+			api_key_id = ?`,
+		key.Label,
+		key.Capabilities,
+		key.VisibleToDevelopers,
+		key.APIKeyID,
+	).Exec().Error
 }
 
 func (d *AuthDB) DeleteAPIKey(ctx context.Context, apiKeyID string) error {
@@ -900,10 +893,8 @@ func (d *AuthDB) DeleteAPIKey(ctx context.Context, apiKeyID string) error {
 	if _, err := d.authorizeAPIKeyWrite(ctx, d.h, apiKeyID); err != nil {
 		return err
 	}
-	return d.h.Transaction(ctx, func(tx interfaces.DB) error {
-		return tx.NewQuery(ctx, "authdb_delete_api_key").Raw(
-			`DELETE FROM "APIKeys" WHERE api_key_id = ?`, apiKeyID).Exec().Error
-	})
+	return d.h.NewQuery(ctx, "authdb_delete_api_key").Raw(
+		`DELETE FROM "APIKeys" WHERE api_key_id = ?`, apiKeyID).Exec().Error
 }
 
 func (d *AuthDB) GetUserAPIKeys(ctx context.Context, groupID string) ([]*tables.APIKey, error) {
