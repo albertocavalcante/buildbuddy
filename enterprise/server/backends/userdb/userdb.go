@@ -450,10 +450,7 @@ func (d *UserDB) RequestToJoinGroup(ctx context.Context, groupID string) (grpb.G
 	// If the org has an owned domain that matches the user's email,
 	// the user can join directly as a member.
 	if !u.IsSAML() && group.OwnedDomain != "" && group.OwnedDomain == getEmailDomain(tu.Email) {
-		err = d.h.Transaction(ctx, func(tx interfaces.DB) error {
-			return d.addUserToGroup(ctx, tx, userID, groupID)
-		})
-		if err != nil {
+		if err := d.addUserToGroup(ctx, d.h, userID, groupID); err != nil {
 			return 0, err
 		}
 		return grpb.GroupMembershipStatus_MEMBER, nil
