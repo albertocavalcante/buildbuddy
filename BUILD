@@ -7,6 +7,12 @@ load("//rules/go:index.bzl", "go_sdk_tool")
 
 package(default_visibility = ["//visibility:public"])
 
+alias(
+    name = "zlib",
+    actual = "@zlib",
+    tags = ["manual"],
+)
+
 # Rendered JSON result could be checked by doing:
 #   bazel build //:no_go_config
 #   cat bazel-bin/no_go_config.json | jq .
@@ -158,7 +164,6 @@ gazelle_binary(
 # gazelle:exclude enterprise/bundle.go
 # Prefer generated BUILD files to be called BUILD over BUILD.bazel
 # gazelle:build_file_name BUILD,BUILD.bazel
-# gazelle:prefix github.com/buildbuddy-io/buildbuddy
 # gazelle:proto disable
 # gazelle:map_kind ts_project ts_library //rules/typescript:index.bzl
 # gazelle:exclude **/node_modules/**
