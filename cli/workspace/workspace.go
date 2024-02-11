@@ -40,7 +40,7 @@ func path() (string, string, error) {
 		return "", "", err
 	}
 	for {
-		for _, basename := range []string{"WORKSPACE", "WORKSPACE.bazel", "MODULE", "MODULE.bazel"} {
+		for _, basename := range []string{"WORKSPACE", "WORKSPACE.bazel", "MODULE.bazel"} {
 			ex, err := disk.FileExists(context.TODO(), filepath.Join(dir, basename))
 			if err != nil {
 				return "", "", err

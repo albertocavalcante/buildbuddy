@@ -149,10 +149,9 @@ func walk() error {
 
 // Collect the languages that support auto-generating WORKSPACE files.
 func getLanguages() []language.Language {
-	languages := make([]language.Language, 0)
+	languages := make([]language.Language, len(langs.Languages))
 	for _, l := range langs.Languages {
-		l, ok := l.(language.Language)
-		if ok {
+		if l, ok := l.(language.Language); ok {
 			languages = append(languages, l)
 		}
 	}
