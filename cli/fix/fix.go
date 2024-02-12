@@ -1,6 +1,7 @@
 package fix
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -47,27 +48,33 @@ func HandleFix(args []string) (exitCode int, err error) {
 		return -1, err
 	}
 
-	path, _, err := workspace.CreateWorkspaceIfNotExists()
+	path, baseFile, err := workspace.CreateWorkspaceIfNotExists()
 	if err != nil {
 		return 1, err
 	}
 
-	err = walk()
-	if err != nil {
-		log.Printf("Error fixing: %s", err)
+	if baseFile != workspace.ModuleFileName {
+		if err := walk(); err != nil {
+			log.Printf("Error fixing: %s", err)
+		}
 	}
 
-	runGazelle(path)
+	runGazelle(path, baseFile)
 
 	return 0, nil
 }
 
-func runGazelle(repoRoot string) {
+func runGazelle(repoRoot, baseFile string) {
 	originalArgs := os.Args
 	defer func() {
 		os.Args = originalArgs
 	}()
-	os.Args = []string{"gazelle", "-repo_root=" + repoRoot, "--go_prefix="}
+
+	os.Args = []string{"gazelle", "-repo_root=" + repoRoot, "-go_prefix="}
+	if baseFile == workspace.ModuleFileName {
+		os.Args = append(os.Args, "-repo_config=@@gazelle~override~go_deps~bazel_gazelle_go_repository_config//:WORKSPACE")
+	}
+
 	if *diff {
 		os.Args = append(os.Args, "-mode=diff")
 	}
@@ -149,7 +156,7 @@ func walk() error {
 
 // Collect the languages that support auto-generating WORKSPACE files.
 func getLanguages() []language.Language {
-	languages := make([]language.Language, len(langs.Languages))
+	var languages []language.Language
 	for _, l := range langs.Languages {
 		if l, ok := l.(language.Language); ok {
 			languages = append(languages, l)
@@ -172,12 +179,12 @@ func runBuildifier(path string) {
 }
 
 func runUpdateRepos(path string) {
-	// originalArgs := os.Args
-	// defer func() {
-	// 	os.Args = originalArgs
-	// }()
-	// funcName := fmt.Sprintf("install_%s_dependencies", nonAlphanumericRegex.ReplaceAllString(path, "_"))
-	// os.Args = []string{"gazelle", "update-repos", "--from_file=" + path, "--to_macro=deps.bzl%" + funcName}
-	// log.Debugf("Calling gazelle with args: %+v", os.Args)
-	// gazelle.Run()
+	originalArgs := os.Args
+	defer func() {
+		os.Args = originalArgs
+	}()
+	funcName := fmt.Sprintf("install_%s_dependencies", nonAlphanumericRegex.ReplaceAllString(path, "_"))
+	os.Args = []string{"gazelle", "update-repos", "--from_file=" + path, "--to_macro=deps.bzl%" + funcName}
+	log.Debugf("Calling gazelle with args: %+v", os.Args)
+	gazelle.Run()
 }
