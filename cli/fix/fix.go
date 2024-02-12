@@ -53,10 +53,10 @@ func HandleFix(args []string) (exitCode int, err error) {
 		return 1, err
 	}
 
-	if baseFile != workspace.ModuleFileName {
-		if err := walk(); err != nil {
-			log.Printf("Error fixing: %s", err)
-		}
+	// don't run update-repos in bzlmod
+	updateRepos := baseFile != workspace.ModuleFileName
+	if err := walk(updateRepos); err != nil {
+		log.Printf("Error fixing: %s", err)
 	}
 
 	runGazelle(path, baseFile)
@@ -82,7 +82,7 @@ func runGazelle(repoRoot, baseFile string) {
 	gazelle.Run()
 }
 
-func walk() error {
+func walk(updateRepos bool) error {
 	languages := getLanguages()
 	foundLanguages := map[language.Language]bool{}
 	depFiles := map[string][]string{}
@@ -144,10 +144,12 @@ func walk() error {
 		}
 	}
 
-	// Run update-repos on any dependency files we found.
-	for _, paths := range depFiles {
-		for _, p := range paths {
-			runUpdateRepos(p)
+	if updateRepos {
+		// Run update-repos on any dependency files we found.
+		for _, paths := range depFiles {
+			for _, p := range paths {
+				runUpdateRepos(p)
+			}
 		}
 	}
 
