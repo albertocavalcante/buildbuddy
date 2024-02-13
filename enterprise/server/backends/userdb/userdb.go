@@ -486,7 +486,7 @@ func (d *UserDB) GetGroupUsers(ctx context.Context, groupID string, statuses []g
 	if len(statuses) == 0 {
 		return nil, status.InvalidArgumentError("A valid status or statuses are required")
 	}
-	if err := perms.AuthorizeGroupAccess(ctx, d.env, groupID); err != nil {
+	if err := authutil.AuthorizeGroupAccess(ctx, d.env, groupID); err != nil {
 		return nil, err
 	}
 

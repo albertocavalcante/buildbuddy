@@ -8,9 +8,9 @@ import (
 
 	"github.com/buildbuddy-io/buildbuddy/server/environment"
 	"github.com/buildbuddy-io/buildbuddy/server/real_environment"
+	"github.com/buildbuddy-io/buildbuddy/server/util/authutil"
 	"github.com/buildbuddy-io/buildbuddy/server/util/db"
 	"github.com/buildbuddy-io/buildbuddy/server/util/log"
-	"github.com/buildbuddy-io/buildbuddy/server/util/perms"
 
 	usage_config "github.com/buildbuddy-io/buildbuddy/enterprise/server/usage/config"
 	usagepb "github.com/buildbuddy-io/buildbuddy/proto/usage"
@@ -49,7 +49,7 @@ func New(env environment.Env) *usageService {
 
 func (s *usageService) GetUsage(ctx context.Context, req *usagepb.GetUsageRequest) (*usagepb.GetUsageResponse, error) {
 	groupID := req.GetRequestContext().GetGroupId()
-	if err := perms.AuthorizeGroupAccess(ctx, s.env, groupID); err != nil {
+	if err := authutil.AuthorizeGroupAccess(ctx, s.env, groupID); err != nil {
 		return nil, err
 	}
 

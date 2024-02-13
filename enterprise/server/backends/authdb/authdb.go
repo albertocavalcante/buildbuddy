@@ -673,7 +673,7 @@ func (d *AuthDB) CreateUserAPIKey(ctx context.Context, groupID, label string, ca
 		return nil, status.InvalidArgumentError("Group ID cannot be nil.")
 	}
 
-	if err := perms.AuthorizeGroupAccess(ctx, d.env, groupID); err != nil {
+	if err := authutil.AuthorizeGroupAccess(ctx, d.env, groupID); err != nil {
 		return nil, err
 	}
 
@@ -796,7 +796,7 @@ func (d *AuthDB) GetAPIKeys(ctx context.Context, groupID string) ([]*tables.APIK
 	if err != nil {
 		return nil, err
 	}
-	if err := perms.AuthorizeGroupAccess(ctx, d.env, groupID); err != nil {
+	if err := authutil.AuthorizeGroupAccess(ctx, d.env, groupID); err != nil {
 		return nil, err
 	}
 	q := query_builder.NewQuery(`SELECT * FROM "APIKeys"`)
@@ -902,7 +902,7 @@ func (d *AuthDB) GetUserAPIKeys(ctx context.Context, groupID string) ([]*tables.
 	if err != nil {
 		return nil, err
 	}
-	if err := perms.AuthorizeGroupAccess(ctx, d.env, groupID); err != nil {
+	if err := authutil.AuthorizeGroupAccess(ctx, d.env, groupID); err != nil {
 		return nil, err
 	}
 
