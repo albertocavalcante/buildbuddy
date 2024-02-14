@@ -43,6 +43,8 @@ function run() {
   } &
 }
 
+export BB_VERBOSE=1
+
 run BuildFiles \
   "$BB_PATH" fix --diff
 
