@@ -167,6 +167,7 @@ gazelle_binary(
 # gazelle:proto disable
 # gazelle:map_kind ts_project ts_library //rules/typescript:index.bzl
 # gazelle:exclude **/node_modules/**
+# gazelle:go_naming_convention import
 # TODO(siggisim): remove once we support .css imports properly
 # gazelle:exclude website/**
 #

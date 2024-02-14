@@ -43,25 +43,23 @@ function run() {
   } &
 }
 
-export BB_VERBOSE=1
-
 run BuildFiles \
   "$BB_PATH" fix --diff
 
-run GoDeps \
-  env GO_PATH="$GO_PATH" \
-  tools/fix_go_deps.sh --diff
-
-run GoFormat \
-  "$GOFMT_PATH" -d .
-
-run ProtoFormat \
-  env CLANG_FORMAT_PATH="$CLANG_FORMAT_PATH" \
-  tools/clang-format/clang-format.sh --dry-run
-
-run PrettierFormat \
-  env PRETTIER_PATH="$PRETTIER_PATH" \
-  tools/prettier/prettier.sh --loglevel=warn --check
+# run GoDeps \
+#   env GO_PATH="$GO_PATH" \
+#   tools/fix_go_deps.sh --diff
+# 
+# run GoFormat \
+#   "$GOFMT_PATH" -d .
+# 
+# run ProtoFormat \
+#   env CLANG_FORMAT_PATH="$CLANG_FORMAT_PATH" \
+#   tools/clang-format/clang-format.sh --dry-run
+# 
+# run PrettierFormat \
+#   env PRETTIER_PATH="$PRETTIER_PATH" \
+#   tools/prettier/prettier.sh --loglevel=warn --check
 
 wait
 

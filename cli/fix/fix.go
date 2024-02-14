@@ -1,6 +1,7 @@
 package fix
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/buildbuddy-io/buildbuddy/cli/add"
 	"github.com/buildbuddy-io/buildbuddy/cli/arg"
+	"github.com/buildbuddy-io/buildbuddy/cli/bazelisk"
 	"github.com/buildbuddy-io/buildbuddy/cli/fix/language"
 	"github.com/buildbuddy-io/buildbuddy/cli/log"
 	"github.com/buildbuddy-io/buildbuddy/cli/translate"
@@ -59,20 +61,52 @@ func HandleFix(args []string) (exitCode int, err error) {
 		log.Printf("Error fixing: %s", err)
 	}
 
-	runGazelle(path, baseFile)
+	if err := runGazelle(path, baseFile); err != nil {
+		return 1, err
+	}
 
 	return 0, nil
 }
 
-func runGazelle(repoRoot, baseFile string) {
+const goRepositoryConfigLocation = "@@gazelle~override~go_deps~bazel_gazelle_go_repository_config//:WORKSPACE"
+
+func gazelleConfig() (string, error) {
+	bazelArgs := []string{"query", "--output=location", goRepositoryConfigLocation}
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	opts := &bazelisk.RunOpts{
+		Stdout: stdout,
+		Stderr: stderr,
+	}
+	_, err := bazelisk.Run(bazelArgs, opts)
+	if err != nil {
+		return "", err
+	}
+
+	// output will be in the form of
+	//   /some/path/config/WORKSPACE:1:1 source file <target>
+	// extract `/some/path/config/WORKSPACE` from that.
+	out := stdout.String()
+	fragments := strings.Split(out, " ")
+	locations := strings.Split(fragments[0], ":")
+	return locations[0], nil
+}
+
+func runGazelle(repoRoot, baseFile string) error {
 	originalArgs := os.Args
 	defer func() {
 		os.Args = originalArgs
 	}()
 
-	os.Args = []string{"gazelle", "-repo_root=" + repoRoot, "-go_prefix="}
+	os.Args = []string{"gazelle"}
 	if baseFile == workspace.ModuleFileName {
-		os.Args = append(os.Args, "-repo_config=@@gazelle~override~go_deps~bazel_gazelle_go_repository_config//:WORKSPACE")
+		configPath, err := gazelleConfig()
+		if err != nil {
+			return err
+		}
+		os.Args = append(os.Args, "-bzlmod", "-repo_config="+configPath)
+	} else {
+		os.Args = append(os.Args, "-repo_root="+repoRoot, "-go_prefix=")
 	}
 
 	if *diff {
@@ -80,6 +114,7 @@ func runGazelle(repoRoot, baseFile string) {
 	}
 	log.Debugf("Calling gazelle with args: %+v", os.Args)
 	gazelle.Run()
+	return nil
 }
 
 func walk(updateRepos bool) error {
