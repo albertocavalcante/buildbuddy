@@ -1245,8 +1245,6 @@ func (s *SchedulerServer) unclaimTask(ctx context.Context, taskID, leaseID, reco
 	}
 	log.CtxDebugf(ctx, "Released task claim in Redis (reconnecting=%t)", reconnectToken != "")
 
-	action_merger.DeletePendingExecution(ctx, s.rdb, taskID)
-
 	return nil
 }
 
