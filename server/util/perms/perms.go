@@ -122,7 +122,7 @@ func AuthorizeRead(u interfaces.UserInfo, acl *aclpb.ACL) error {
 		return err
 	}
 
-	if perms&OTHERS_READ != 0 || u.IsAdmin() {
+	if perms&OTHERS_READ != 0 {
 		return nil
 	}
 	isOwner := u.GetUserID() == acl.GetUserId().GetId()
@@ -217,9 +217,6 @@ func GetPermissionsCheckClauses(ctx context.Context, env environment.Env, q *que
 				u.GetGroupID(),
 			}
 			o.AddOr(fmt.Sprintf("(%sperms & ? != 0 AND %sgroup_id = ?)", tablePrefix, tablePrefix), groupArgs...)
-		}
-		if u.IsAdmin() {
-			o.AddOr(fmt.Sprintf("(%sperms & ? != 0)", tablePrefix), ALL)
 		}
 	}
 
