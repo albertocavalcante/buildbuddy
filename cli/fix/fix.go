@@ -73,10 +73,10 @@ const goRepositoryConfigLocation = "@@gazelle~override~go_deps~bazel_gazelle_go_
 func gazelleConfig() (string, error) {
 	bazelArgs := []string{"query", "--output=location", goRepositoryConfigLocation}
 	stdout := &bytes.Buffer{}
-	stderr := &bytes.Buffer{}
 	opts := &bazelisk.RunOpts{
+		// we intentionally skip stderr here to avoid
+		// failing healthcheck
 		Stdout: stdout,
-		Stderr: stderr,
 	}
 	_, err := bazelisk.Run(bazelArgs, opts)
 	if err != nil {
