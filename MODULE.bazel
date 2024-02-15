@@ -132,6 +132,31 @@ go_deps.module_override(
     patches = ["@@//buildpatches:com_github_prometheus_common.patch"],
     path = "github.com/prometheus/common",
 )
+go_deps.module_override(
+    patch_strip = 1,
+    patches = ["@@//buildpatches:docker-host.patch"],
+    path = "github.com/docker/docker",
+)
+go_deps.module_override(
+    patch_strip = 1,
+    patches = ["@@//buildpatches:com_github_firecracker_microvm_firecracker_go_sdk_jailer.patch"],
+    path = "github.com/firecracker-microvm/firecracker-go-sdk",
+)
+go_deps.module_override(
+    patch_strip = 1,
+    patches = ["@@//buildpatches:com_github_hanwen_go_fuse_v2.patch"],
+    path = "github.com/hanwen/go-fuse/v2",
+)
+go_deps.module_override(
+    patch_strip = 1,
+    patches = ["@@//buildpatches:com_github_mattn_go_sqlite3.patch"],
+    path = "github.com/mattn/go-sqlite3",
+)
+go_deps.module_override(
+    patch_strip = 1,
+    patches = ["@@//buildpatches:org_golang_google_grpc_remove_drain_panic.patch"],
+    path = "google.golang.org/grpc",
+)
 
 # Go repos with custom directives
 go_deps.gazelle_override(
