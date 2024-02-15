@@ -71,11 +71,18 @@ func HandleFix(args []string) (exitCode int, err error) {
 const goRepositoryConfigLocation = "@@gazelle~override~go_deps~bazel_gazelle_go_repository_config//:WORKSPACE"
 
 func gazelleConfig() (string, error) {
-	bazelArgs := []string{"query", "--output=location", goRepositoryConfigLocation}
+	// we intentionally skip stderr here for both
+	// bazelisk and bazel to avoid failing checkstyle.sh
+	bazelArgs := []string{
+		"query",
+		"--ui_event_filters=-info,-debug,-warning,-stderr",
+		"--noshow_progress",
+		"--logging=0",
+		"--output=location",
+		goRepositoryConfigLocation,
+	}
 	stdout := &bytes.Buffer{}
 	opts := &bazelisk.RunOpts{
-		// we intentionally skip stderr here to avoid
-		// failing healthcheck
 		Stdout: stdout,
 	}
 	_, err := bazelisk.Run(bazelArgs, opts)
