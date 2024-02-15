@@ -60,7 +60,7 @@ type Opts struct {
 // mount dir or one of the backing storage dirs. The symlink can be used to
 // "rewire" the absolute path to any of these dirs.
 func Convert(ctx context.Context, path string, opts Opts) (*Overlay, error) {
-	ctx, span := tracing.StartSpan(ctx)
+	_, span := tracing.StartSpan(ctx)
 	defer span.End()
 
 	fs := &Overlay{
@@ -123,7 +123,7 @@ type ApplyOpts struct {
 // This is intended to be called after a task is run so that outputs can be
 // safely hardlinked to the filecache.
 func (o *Overlay) Apply(ctx context.Context, opts ApplyOpts) error {
-	ctx, span := tracing.StartSpan(ctx)
+	_, span := tracing.StartSpan(ctx)
 	defer span.End()
 
 	// Walk the upper dir and move all files into lowerdir, or if the file is a

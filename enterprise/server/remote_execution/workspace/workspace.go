@@ -278,11 +278,11 @@ func (ws *Workspace) UploadOutputs(ctx context.Context, cmd *repb.Command, execu
 	var txInfo *dirtools.TransferInfo
 	var stdoutDigest, stderrDigest *repb.Digest
 
-	eg, ctx := errgroup.WithContext(ctx)
+	eg, egCtx := errgroup.WithContext(ctx)
 	eg.Go(func() error {
 		// Errors uploading stderr/stdout are swallowed.
 		var err error
-		stdoutDigest, err = cachetools.UploadBlob(ctx, bsClient, instanceName, digestFunction, bytes.NewReader(cmdResult.Stdout))
+		stdoutDigest, err = cachetools.UploadBlob(egCtx, bsClient, instanceName, digestFunction, bytes.NewReader(cmdResult.Stdout))
 		if err != nil {
 			log.CtxWarningf(ctx, "Failed to upload stdout: %s", err)
 		}
@@ -291,7 +291,7 @@ func (ws *Workspace) UploadOutputs(ctx context.Context, cmd *repb.Command, execu
 	eg.Go(func() error {
 		// Errors uploading stderr/stdout are swallowed.
 		var err error
-		stderrDigest, err = cachetools.UploadBlob(ctx, bsClient, instanceName, digestFunction, bytes.NewReader(cmdResult.Stderr))
+		stderrDigest, err = cachetools.UploadBlob(egCtx, bsClient, instanceName, digestFunction, bytes.NewReader(cmdResult.Stderr))
 		if err != nil {
 			log.CtxWarningf(ctx, "Failed to upload stderr: %s", err)
 		}
@@ -309,12 +309,12 @@ func (ws *Workspace) UploadOutputs(ctx context.Context, cmd *repb.Command, execu
 			// upperdir here rather than copying.
 			recyclingEnabled := platform.IsTrue(platform.FindValue(ws.task.GetCommand().GetPlatform(), platform.RecycleRunnerPropertyName))
 			opts := overlayfs.ApplyOpts{AllowRename: !recyclingEnabled}
-			if err := ws.overlay.Apply(ctx, opts); err != nil {
+			if err := ws.overlay.Apply(egCtx, opts); err != nil {
 				return status.WrapError(err, "apply overlay upperdir changes")
 			}
 		}
 		var err error
-		txInfo, err = dirtools.UploadTree(ctx, ws.env, ws.dirHelper, instanceName, digestFunction, ws.lowerdir(), cmd, executeResponse.Result)
+		txInfo, err = dirtools.UploadTree(egCtx, ws.env, ws.dirHelper, instanceName, digestFunction, ws.lowerdir(), cmd, executeResponse.Result)
 		return err
 	})
 	var logsMu sync.Mutex
