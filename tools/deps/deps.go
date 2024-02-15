@@ -12,6 +12,9 @@ import (
 	// rules_webtesting deps
 	_ "github.com/gorilla/mux"
 
+	// proto, grpc deps
+	_ "cloud.google.com/go/longrunning/autogen/longrunningpb"
+
 	// static analyzers
 	_ "github.com/nishanths/exhaustive"
 	_ "golang.org/x/tools/go/analysis"
