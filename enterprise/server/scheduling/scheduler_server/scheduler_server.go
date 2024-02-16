@@ -1790,8 +1790,8 @@ func (s *SchedulerServer) enqueueOnRemoteExecutor(ctx context.Context, node *exe
 		return false
 	}
 	rpcCtx, cancel := context.WithTimeout(ctx, schedulerEnqueueTaskReservationTimeout)
+	defer cancel()
 	_, err = schedulerClient.EnqueueTaskReservation(rpcCtx, request)
-	cancel()
 	if err != nil {
 		log.CtxWarningf(ctx, "EnqueueTaskReservation via scheduler target %q failed: %s", node.schedulerHostPort, err)
 		time.Sleep(schedulerEnqueueTaskReservationFailureSleep)
